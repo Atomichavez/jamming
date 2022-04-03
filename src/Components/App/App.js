@@ -4,6 +4,7 @@ import { SearchResults } from '../SearchResults/SearchResults';
 import { Playlist } from '../Playlist/Playlist';
 import React from 'react';
 import Spotify from '../../util/Spotify';
+import { AllPlaylists } from '../AllPlaylists/AllPlaylists';
 
 class App extends React.Component {
   constructor(props) {
@@ -11,7 +12,8 @@ class App extends React.Component {
     this.state = {
       searchResults:[],
       playlistName: '',
-      playlistTracks: []
+      playlistTracks: [],
+      playlistItems: []
     }
     this.addTrack = this.addTrack.bind(this)
     this.removeTrack = this.removeTrack.bind(this)
@@ -42,11 +44,16 @@ class App extends React.Component {
     })
   }
   search(term) {
-    console.log(term + 'app.js') //////////////////////////////////
-    console.log(Spotify.search(term) + 'Spotify.search(term)') ///////////////////////////
     Spotify.search(term).then(searchResults => {
       this.setState({searchResults: searchResults})
     })
+  }
+  getPlaylistItems(){
+    // Spotify.getUserPlaylists().then((playlists) => {
+    //   this.setState({playlistItems:playlists})
+    // })
+    const playlists = Spotify.getUserPlaylists()
+    this.setState({playlistItems: playlists})
   }
   render() {
     return (
@@ -56,6 +63,8 @@ class App extends React.Component {
           <SearchBar
             onSearch={this.search}/>
           <div className="App-playlist">
+            <AllPlaylists
+              playlistItems={this.state.playlistItems}/>
             <SearchResults 
               searchResults={this.state.searchResults} 
               onAdd={this.addTrack}/>
