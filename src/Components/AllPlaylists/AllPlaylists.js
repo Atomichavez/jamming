@@ -4,15 +4,22 @@ import Spotify from '../../util/Spotify';
 import { PlaylistItem } from '../PlaylistItem/PlaylistItem';
 
 export class AllPlaylists extends React.Component {
+constructor(props){
+  super(props)
+  this.state = {playlists: []}
+}
 
-  componentDidMount() {
-    console.log(this.props.playlistItems)
+  async componentDidMount() {
+    const playlists = await Spotify.getUserPlaylists()
+    this.setState({playlists: playlists})
+    console.log(this.state.playlists)
   }
   render() {
     return(
       <div>
         <h2>Existing Playlists</h2>
-        {this.props.playlistItems.map((playlist) => <PlaylistItem/>)}
+        {this.state.playlists.map((playlist) => <PlaylistItem
+          name = {playlist.name}/>)}
       </div>
     )
   }

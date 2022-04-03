@@ -2,35 +2,26 @@ const clientId = '390e000017db4fd1adffd9fca5834643'
 const redirectUri = 'http://localhost:3000/'
 // const redirectUri = 'http://jammingdavid.surge.sh'
 let urlPrefix = `https://api.spotify.com/v1/`
-let accessToken
+let accessToken = undefined
 
 const Spotify = {
   getAccessToken() {
-    console.log('getting access token.......')
     if(accessToken) {
-      console.log('access token obtained')
       return accessToken
     } 
-    console.log('access token line 14+')
-    try {
       const accessTokenMatch = window.location.href.match(/access_token=([^&]*)/)
       const expiresInMatch = window.location.href.match(/expires_in=([^&]*)/)
       if(accessTokenMatch && expiresInMatch) {
-        console.log('if') ///////////////////////////////////////////////////////////
         accessToken = accessTokenMatch[1]
-        console.log(accessToken) ///////////////////////////////////////////////////////////
         const expiresIn = Number(expiresInMatch[1])
-        console.log(expiresIn) ///////////////////////////////////////////////////////////
         window.setTimeout(() => accessToken = '', expiresIn * 1000)
         window.history.pushState('Access Token', null, '/')
+        return accessToken
       } else {
-        console.log('else')
-        const accessUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=playlist-modify-public&redirect_uri=${redirectUri}`
-        window.location = accessUrl
-      } 
-    } catch(err) {
-        console.log('Error getting token ' + err)}
+        window.location =  `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=playlist-modify-public&redirect_uri=${redirectUri}`
+      }
   },
+
   async getUserId() {
     const accessToken = Spotify.getAccessToken()
     const headers = { Authorization: `Bearer ${accessToken}` }
@@ -44,6 +35,7 @@ const Spotify = {
     })
     return userId
   },
+
   async getPlaylistId(userId, name) {
     const accessToken = Spotify.getAccessToken()
     const headers = { Authorization: `Bearer ${accessToken}` }
@@ -63,16 +55,15 @@ const Spotify = {
     })
     return playlistId
   },
+
   async search(term) {
+    const searchUrl = `https://api.spotify.com/v1/search?type=track&q=${term}`
     const accessToken = Spotify.getAccessToken()
-    console.log('Search AccessToken obtained')
-    console.log('This is the term: ' + term)
-    let response = fetch(`https://api.spotify.com/v1/search?type=track&q=${term}`, {
+    let response = await fetch(searchUrl, {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
     if(!response.ok) {
-      console.log('throw error....')
-      throw new Error(`Error! status ${response.status}`)
+      throw new Error(`Error status: ${response.status}`)
     }
     let jsonResponse = await response.json()
     if(!jsonResponse.tracks) {
@@ -85,26 +76,8 @@ const Spotify = {
       album: track.album.name,
       uri: track.uri
     }))
-    
-    return fetch(urlPrefix + `search?type=track&q=${term}`, {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    })
-    .then(response => response.json())
-    .then(jsonResponse => {
-      if(!jsonResponse.tracks) {
-        return []
-      }
-      return jsonResponse.tracks.items.map(track => ({
-        id: track.id,
-        name: track.name,
-        artist: track.artists[0].name,
-        album: track.album.name,
-        uri: track.uri
-      }))
-    }).catch((er) => {
-      console.log('Error fetching search tracks')
-    })
   },
+
   async savePlaylist(name, trackUris) {
     if(!name || !trackUris.length) {
       return
@@ -123,23 +96,26 @@ const Spotify = {
       .then((response) => console.log(trackUris))
       .catch((err) => console.log('Error while adding songs to the playlist'))
   },
+
   async getUserPlaylists() {
     const accessToken = Spotify.getAccessToken()
     const headers = { Authorization: `Bearer ${accessToken}` }
     let userId = await this.getUserId()
 
-    //no esta corriendo getUserId esta funcion...... ?
-    return fetch(urlPrefix + `users/${userId}/playlists`, {headers: headers})
-    .then((response) => response.json())
-    .then((jsonResponse) => {
-      console.log(jsonResponse)
-      jsonResponse.items.map(playlist => ({
-        id: playlist.id, name: playlist.name 
-      }))
-    })
-      .catch((err) => {
-        console.log('Error fetching user old playlists')
-      })
+    let response = await fetch(urlPrefix + `users/${userId}/playlists?limit=50`, {headers: headers})
+    if(!response.ok) {
+      throw new Error(`Error status: ${response.status}`)
+    }
+
+    let jsonResponse = await response.json()
+    if(!jsonResponse.items) {
+      return []
+    }
+
+    return jsonResponse.items.map(playlist => ({
+      id: playlist.id,
+      name: playlist.name
+    }))
   }
 }
 

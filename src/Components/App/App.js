@@ -49,9 +49,6 @@ class App extends React.Component {
     })
   }
   getPlaylistItems(){
-    // Spotify.getUserPlaylists().then((playlists) => {
-    //   this.setState({playlistItems:playlists})
-    // })
     const playlists = Spotify.getUserPlaylists()
     this.setState({playlistItems: playlists})
   }
