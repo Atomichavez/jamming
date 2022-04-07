@@ -1,3 +1,4 @@
+import {v4 as uuidv4} from 'uuid';
 const clientId = '390e000017db4fd1adffd9fca5834643'
 const redirectUri = 'http://localhost:3000/'
 // const redirectUri = 'http://jammingdavid.surge.sh'
@@ -28,7 +29,6 @@ const Spotify = {
     let userId = await fetch(`https://api.spotify.com/v1/me`, {headers: headers})
     .then(response => response.json())
     .then(jsonResponse => {
-      console.log('This is the user ID' + jsonResponse.id)
       return jsonResponse.id})
     .catch((err) => {
       console.log('User id Fetch error')
@@ -47,7 +47,6 @@ const Spotify = {
     })
     .then(response => response.json())
     .then(jsonResponse => {
-      console.log('This is the playlist ID' + jsonResponse.id)
       return jsonResponse.id
     })
     .catch((err) => {
@@ -78,23 +77,32 @@ const Spotify = {
     }))
   },
 
-  async savePlaylist(name, trackUris) {
+  async savePlaylist(name, trackUris, id) {
     if(!name || !trackUris.length) {
       return
     }
     const accessToken = Spotify.getAccessToken()
     const headers = { Authorization: `Bearer ${accessToken}` }
-    let userId = await this.getUserId()
-    let playlistId = await this.getPlaylistId(userId, name)
-    
-    await fetch(urlPrefix + `playlists/${playlistId}/tracks`, {
+    if(!id) {
+      let userId = await this.getUserId()
+      let playlistId = await this.getPlaylistId(userId, name)
+      fetch(urlPrefix + `playlists/${playlistId}/tracks`, {
+          headers: headers,
+          method: 'POST',
+          'Content-Type': 'application/json',
+          body: JSON.stringify({uris: trackUris}) 
+        })
+        .then((response) => console.log(`New playlist created`))
+        .catch((err) => console.log(`Error while adding songs to new playlist: ${err}`))
+    } else {
+      fetch(urlPrefix + `playlists/${id}/tracks`, {
         headers: headers,
-        method: 'POST',
+        method: 'PUT',
         'Content-Type': 'application/json',
-        body: JSON.stringify({uris: trackUris}) 
+        body: JSON.stringify({uris: trackUris})
       })
-      .then((response) => console.log(trackUris))
-      .catch((err) => console.log('Error while adding songs to the playlist'))
+      .catch((err) => console.log(`Error while modifying existing playlist: ${err}`))
+    }
   },
 
   async getUserPlaylists() {
@@ -111,11 +119,41 @@ const Spotify = {
     if(!jsonResponse.items) {
       return []
     }
-
     return jsonResponse.items.map(playlist => ({
       id: playlist.id,
-      name: playlist.name
+      name: playlist.name,
+      key : uuidv4()
     }))
+  },
+
+  async getPlaylistTracks(playlistId) {
+    const accessToken = Spotify.getAccessToken()
+    const headers = { Authorization: `Bearer ${accessToken}` }
+    let response = await fetch(urlPrefix + `playlists/${playlistId}/tracks`, {headers: headers})
+    if(!response.ok) {
+      throw new Error(`Error status: ${response.status}`)
+    }
+    let jsonResponse = await response.json()
+    return jsonResponse.items.map(track => ({
+      id: track.track.id,
+      name: track.track.name,
+      artist: track.track.artists[0].name,
+      album: track.track.album.name,
+      uri: track.track.uri
+    }))
+  },
+  async changePlaylistName(newName, id) {
+    const name = newName
+    const accessToken = Spotify.getAccessToken()
+    const headers = { Authorization: `Bearer ${accessToken}` }
+    let response = await fetch(urlPrefix + `playlists/${id}`, {
+      headers: headers,
+      method: 'PUT',
+      'Content-Type': 'application/json',
+      body: JSON.stringify({name: name})})
+    if(!response.ok) {
+      throw new Error(`Error status: ${response.status}`)
+    }
   }
 }
 

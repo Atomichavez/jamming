@@ -1,0 +1,10 @@
+-cuando le doy 'save to spotify' que se actualice 'Existing playlists'
+-cuando selecciono un Existing Playlist no se actualiza el titulo de Playlist
+-agregar dos botones arriba de new playlist cuando estoy editando una existente: 
+  -modify existing or 
+  -save new
+
+-al grabar la playlist no se resetea a New Playlist el input...
+-al cambiar el nombre de la playlist y darle save no se actualiza en las Existing Playlists
+
+*necesito crear un nuevo uuidv4 en el momento que le doy save a una playlist existente para que aunque el id del track no cambie, el KEY si cambiara y me actualizara el nombre del playlist en Existing playlists

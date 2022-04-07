@@ -28,7 +28,7 @@ h2 {
 
 .App {
   height: 100%;
-  padding: 0 17% 10% 17%;
+  padding: 0 5% 10% 5%;
   background-image: url('./background_photo_desktop.jpg');
   background-size: cover;
   background-position: center;
@@ -44,10 +44,26 @@ h2 {
   width: 100%;
 }
 
+.AllPlaylists,
+.Playlist,
+.SearchResults {
+  display: flex;
+  flex-direction: column;
+  width: 28%;
+  justify-content: space-between;
+  max-height: 650px;
+  overflow-y: scroll;
+  padding: 2.27rem 1.16rem;
+  background-color: rgba(1, 12, 63, 0.7);
+  box-shadow: 2px 4px 8px 2px #000000;
+}
+
 @media only screen and (max-width: 1020px) {
   .App-playlist {
     align-items: center;
     flex-direction: column;
   }
 }
+
+
 
