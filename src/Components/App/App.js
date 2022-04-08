@@ -14,6 +14,7 @@ class App extends React.Component {
       searchResults:[],
       playlistName: 'New Playlist',
       playlistId: null,
+      playlistUuid: null,
       playlistTracks: [],
       playlistItems: [],
       playlistToEdit: '',
@@ -44,12 +45,13 @@ class App extends React.Component {
   updatePlaylistId(id) {
     this.setState({playlistId: id})
   }
-  savePlaylist() {
+  savePlaylist(uuid) {
     const trackUris = this.state.playlistTracks.map(song => song.uri)
     Spotify.changePlaylistName(this.state.playlistName, this.state.playlistId)
     Spotify.savePlaylist(this.state.playlistName, trackUris, this.state.playlistId).then(() => {
       this.setState({playlistName: 'New Playlist'})
       this.setState({playlistTracks: []})
+      this.setState({playlistUuid: uuid})
     })
     .then(()=> {
       this.setState({playlistID: null})
@@ -88,6 +90,7 @@ class App extends React.Component {
               playlistName={this.state.playlistName}
               playlistId = {this.state.playlistId}
               playlistTracks={this.state.playlistTracks}
+              playlistUuid={this.state.playlistUuid}
               onRemove={this.removeTrack}
               onNameChange={this.updatePlaylistName}
               onSave={this.savePlaylist}/>
