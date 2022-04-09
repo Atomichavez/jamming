@@ -1,7 +1,7 @@
 import {v4 as uuidv4} from 'uuid';
 const clientId = '390e000017db4fd1adffd9fca5834643'
-const redirectUri = 'http://localhost:3000/callback/'
-// const redirectUri = 'https://fanciful-platypus-9546ab.netlify.app'
+// const redirectUri = 'http://localhost:3000/callback/'
+const redirectUri = 'https://fanciful-platypus-9546ab.netlify.app'
 let urlPrefix = `https://api.spotify.com/v1/`
 let accessToken = undefined
 

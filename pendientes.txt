@@ -8,3 +8,6 @@
 -al cambiar el nombre de la playlist y darle save no se actualiza en las Existing Playlists
 
 *necesito crear un nuevo uuidv4 en el momento que le doy save a una playlist existente para que aunque el id del track no cambie, el KEY si cambiara y me actualizara el nombre del playlist en Existing playlists
+
+- para que jale el deploy hay que volver a darle NPM RUN BUILD
+https://discuss.codecademy.com/t/jamming-invalid-client-uri-after-surge-deployment/547726
